@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบตรวจสอบข้อมูลการพิจารณาทุนการศึกษา</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt & Sarabun -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Sarabun', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Prompt', 'Sarabun', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            transition: font-size 0.2s ease-in-out;
+        }
+
+        /* Font Sizes (Levels 1 to 5) */
+        body.font-level-1 { font-size: 13px; }
+        body.font-level-2 { font-size: 15px; }
+        body.font-level-3 { font-size: 17px; } /* Default */
+        body.font-level-4 { font-size: 19px; }
+        body.font-level-5 { font-size: 21px; }
+
+        /* Smooth Card Animations */
+        .card-enter {
+            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .border-left-accent-blue { border-left: 5px solid #3b82f6; }
+        .border-left-accent-green { border-left: 5px solid #10b981; }
+        .border-left-accent-pink { border-left: 5px solid #ec4899; }
+        .border-left-accent-purple { border-left: 5px solid #a855f7; }
+        .border-left-accent-amber { border-left: 5px solid #f59e0b; }
+        .border-left-accent-red { border-left: 5px solid #ef4444; }
+    </style>
+</head>
+<body class="font-level-3 min-h-screen flex flex-col justify-between pb-12">
+
+    <!-- Top Controller Bar: Font Controls & Status -->
+    <header class="bg-slate-900 text-white py-2.5 px-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-3xl mx-auto flex justify-between items-center gap-2">
+            <div class="flex items-center space-x-2 text-xs font-medium text-slate-300">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                <span>ระบบตรวจสอบทุนการศึกษา</span>
+            </div>
+            
+            <!-- Font Size Adjuster (1-5 Level) -->
+            <div class="flex items-center space-x-1.5 bg-slate-800 rounded-full px-3 py-1 border border-slate-700">
+                <span class="text-xs text-slate-400 mr-1 select-none flex items-center gap-1">
+                    <i data-lucide="type" class="w-3.5 h-3.5"></i> ขนาดอักษร:
+                </span>
+                <button onclick="setFontSize(1)" id="fbtn-1" class="w-5 h-5 rounded-full text-xs font-semibold flex items-center justify-center transition-all bg-slate-700 text-slate-300 hover:bg-slate-600">1</button>
+                <button onclick="setFontSize(2)" id="fbtn-2" class="w-5 h-5 rounded-full text-xs font-semibold flex items-center justify-center transition-all bg-slate-700 text-slate-300 hover:bg-slate-600">2</button>
+                <button onclick="setFontSize(3)" id="fbtn-3" class="w-5 h-5 rounded-full text-xs font-semibold flex items-center justify-center transition-all bg-blue-600 text-white font-bold">3</button>
+                <button onclick="setFontSize(4)" id="fbtn-4" class="w-5 h-5 rounded-full text-xs font-semibold flex items-center justify-center transition-all bg-slate-700 text-slate-300 hover:bg-slate-600">4</button>
+                <button onclick="setFontSize(5)" id="fbtn-5" class="w-5 h-5 rounded-full text-xs font-semibold flex items-center justify-center transition-all bg-slate-700 text-slate-300 hover:bg-slate-600">5</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-3xl w-full mx-auto px-4 pt-6 space-y-6 flex-1">
+        
+        <!-- Header Section (Dynamic Memo sheet content) -->
+        <div id="header-memo-box" class="bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 opacity-10 pointer-events-none">
+                <i data-lucide="graduation-cap" class="w-48 h-48"></i>
+            </div>
+            <div id="memo-content" class="relative z-10 space-y-1">
+                <h1 id="memo-title" class="text-2xl font-bold tracking-tight">ระบบตรวจสอบข้อมูลการพิจารณาทุนการศึกษา</h1>
+                <p id="memo-sub1" class="text-blue-100 opacity-90 text-sm">ตรวจสอบสถานะทุน ผลการเรียน และเกณฑ์การพิจารณาประจำภาคเรียน</p>
+                <p id="memo-sub2" class="text-blue-200 text-xs mt-2 italic hidden"></p>
+            </div>
+        </div>
+
+        <!-- Search Box Section -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3">
+            <label for="student-id-input" class="block font-semibold text-slate-700 text-sm flex items-center gap-1.5">
+                <i data-lucide="search" class="w-4 h-4 text-blue-600"></i> ค้นหาด้วยรหัสนักศึกษา
+            </label>
+            <div class="flex gap-2">
+                <div class="relative flex-1">
+                    <input type="text" id="student-id-input" placeholder="กรอกรหัสนักศึกษา เช่น 38874" 
+                           class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none text-slate-800 font-medium transition-all"
+                           onkeypress="if(event.key === 'Enter') searchStudent()">
+                    <i data-lucide="user" class="w-5 h-5 text-slate-400 absolute left-3 top-3.5"></i>
+                </div>
+                <button onclick="searchStudent()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap">
+                    <span>ค้นหา</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
+                <span>ทดสอบรหัสตัวอย่าง: <button onclick="fillSearch('38874')" class="text-blue-600 underline font-medium hover:text-blue-800">38874 (Active)</button>, <button onclick="fillSearch('39901')" class="text-blue-600 underline font-medium hover:text-blue-800">39901 (Inactive)</button></span>
+                <span id="data-source-tag" class="text-slate-400 text-[10px]">กำลังเชื่อมต่อข้อมูล...</span>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading-spinner" class="hidden py-12 text-center space-y-3">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
+            <p class="text-slate-500 font-medium text-sm">กำลังค้นหาและประมวลผลข้อมูล...</p>
+        </div>
+
+        <!-- Result Container -->
+        <div id="result-container" class="space-y-4">
+            <!-- Alert Box for Empty State -->
+            <div id="initial-state" class="bg-blue-50/60 border border-blue-100 rounded-2xl p-8 text-center space-y-3">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+                    <i data-lucide="search" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-semibold text-slate-700">ระบุรหัสนักศึกษาเพื่อเริ่มต้นค้นหา</h3>
+                <p class="text-xs text-slate-500 max-w-sm mx-auto">ป้อนรหัสนักศึกษา 5 หลักในช่องค้นหาด้านบน เพื่อตรวจสอบรายละเอียดการพิจารณาทุนประจำภาคเรียน</p>
+            </div>
+
+            <!-- Warning Card (When FixR Class is Inactive) -->
+            <div id="inactive-card" class="hidden bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 shadow-sm space-y-3 card-enter">
+                <div class="flex items-start gap-3">
+                    <div class="p-2.5 bg-amber-500 text-white rounded-xl shadow-sm mt-0.5">
+                        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                    </div>
+                    <div class="space-y-1 flex-1">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-amber-900 text-base">ไม่สามารถแสดงข้อมูลทุนการศึกษาได้</h3>
+                            <span class="bg-amber-200 text-amber-900 text-xs px-2.5 py-1 rounded-full font-semibold">สถานะ: Inactive</span>
+                        </div>
+                        <p id="inactive-reason" class="text-amber-800 text-sm leading-relaxed font-medium">
+                            ระดับชั้นนี้ถูกระบุสถานะเป็นไม่พร้อมใช้งาน (Inactive)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Student Details View (Matching A1x & A2 Images) -->
+            <div id="student-data-view" class="hidden space-y-5 card-enter">
+                
+                <!-- ROW 1: Student ID & Class Level -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    <!-- Student ID Card -->
+                    <div class="bg-blue-50/50 border border-blue-200/80 rounded-2xl p-4 border-left-accent-blue shadow-sm flex flex-col justify-between">
+                        <span class="text-blue-600 font-semibold text-xs tracking-wide">รหัสนักศึกษา</span>
+                        <div id="res-student-id" class="text-xl font-bold text-slate-800 mt-1">38874</div>
+                    </div>
+                    <!-- Class Level Card -->
+                    <div class="bg-emerald-50/50 border border-emerald-200/80 rounded-2xl p-4 border-left-accent-green shadow-sm flex flex-col justify-between">
+                        <span class="text-emerald-700 font-semibold text-xs tracking-wide">ระดับชั้น</span>
+                        <div id="res-class-level" class="text-xl font-bold text-emerald-900 mt-1">ปวช.1/1</div>
+                    </div>
+                </div>
+
+                <!-- ROW 2: Name & Tuition Fee -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    <!-- Name Card -->
+                    <div class="bg-purple-50/50 border border-purple-200/80 rounded-2xl p-4 border-left-accent-purple shadow-sm flex flex-col justify-between">
+                        <span class="text-purple-700 font-semibold text-xs tracking-wide">ชื่อ-นามสกุล</span>
+                        <div id="res-name" class="text-base font-bold text-slate-800 mt-1">นางสาวสุชัญญาภัทร์ สุขฤกษ์</div>
+                    </div>
+                    <!-- Tuition Fee Card -->
+                    <div class="bg-rose-50/50 border border-rose-200/80 rounded-2xl p-4 border-left-accent-pink shadow-sm flex flex-col justify-between">
+                        <span class="text-rose-600 font-semibold text-xs tracking-wide">ยอดค่าเทอมที่ต้องชำระ</span>
+                        <div id="res-tuition" class="text-xl font-bold text-rose-600 mt-1">฿1,000</div>
+                    </div>
+                </div>
+
+                <!-- ROW 3: Scholarship Consideration Result Card -->
+                <div class="bg-purple-50/40 border-2 border-purple-200 rounded-2xl p-5 border-left-accent-purple shadow-sm space-y-1.5">
+                    <span id="res-term-title" class="text-slate-600 font-semibold text-xs block">การพิจารณาทุนในภาคเรียนที่ 2/2569</span>
+                    <h2 id="res-scholarship-name" class="text-xl font-bold text-slate-900">ทุนเรียนฟรีตลอดหลักสูตร</h2>
+                </div>
+
+                <!-- ROW 4: Academic Performance Grid (3 Columns) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                    <!-- GPA Card -->
+                    <div class="bg-blue-50/40 border border-blue-200/80 rounded-2xl p-4 border-left-accent-blue shadow-sm space-y-1">
+                        <span id="res-gpa-label" class="text-blue-700 font-semibold text-xs block truncate">ผลการเรียน ภาคเรียนที่ 1/2569</span>
+                        <div id="res-gpa" class="text-xl font-bold text-slate-800">3.5</div>
+                    </div>
+                    <!-- Behavior Score Card -->
+                    <div class="bg-emerald-50/40 border border-emerald-200/80 rounded-2xl p-4 border-left-accent-green shadow-sm space-y-1">
+                        <span class="text-emerald-700 font-semibold text-xs block">คะแนนพฤติกรรม</span>
+                        <div id="res-behavior" class="text-xl font-bold text-slate-800">-</div>
+                    </div>
+                    <!-- Failed Subjects Card -->
+                    <div class="bg-purple-50/40 border border-purple-200/80 rounded-2xl p-4 border-left-accent-purple shadow-sm space-y-1">
+                        <span class="text-purple-700 font-semibold text-xs block">รายวิชาที่ไม่ผ่าน</span>
+                        <div id="res-failed" class="text-xl font-bold text-slate-800">-</div>
+                    </div>
+                </div>
+
+                <!-- ROW 5: Criteria Summary Card (Column J) -->
+                <div class="bg-rose-50/30 border-2 border-rose-200/90 rounded-2xl p-5 border-left-accent-pink shadow-sm space-y-3">
+                    <span class="text-slate-700 font-bold text-xs uppercase tracking-wider block">เกณฑ์</span>
+                    <div id="res-criteria-container" class="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-800 font-medium text-sm">
+                        <!-- Dynamic content from Col J -->
+                    </div>
+                </div>
+
+                <!-- ROW 6: Initial Scholarship Info (Column K) -->
+                <div class="bg-indigo-50/40 border border-indigo-200/80 rounded-2xl p-5 border-left-accent-blue shadow-sm space-y-1.5">
+                    <span class="text-slate-500 font-semibold text-xs block">ข้อมูลทุนแรกเข้าของนักศึกษา</span>
+                    <div id="res-initial-scholarship" class="text-lg font-bold text-indigo-950">ทุนเรียนฟรีตลอดหลักสูตร</div>
+                </div>
+
+                <!-- ROW 7: Criteria Rules Details Box (A2 Image design) -->
+                <div class="bg-amber-50/40 border border-amber-200/80 rounded-2xl p-5 md:p-6 shadow-sm space-y-5">
+                    <div class="flex items-center justify-center gap-2 text-amber-800 font-bold text-base border-b border-amber-200/60 pb-3">
+                        <div class="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-serif font-bold">i</div>
+                        <span>เกณฑ์การพิจารณา</span>
+                    </div>
+
+                    <p class="text-center text-amber-900 text-xs font-medium -mt-2">
+                        เกณฑ์การพิจารณา มี 2 ส่วนประกอบ โดยใช้ข้อมูลพิจารณาเทอมปัจจุบัน ให้สิทธิ์ทุนในเทอมถัดไป
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Rule 1: Behavior -->
+                        <div class="bg-white rounded-xl p-4 border border-amber-200 shadow-sm flex items-start gap-3">
+                            <div class="w-7 h-7 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-slate-800 text-sm">คะแนนพฤติกรรม</h4>
+                                <p class="text-amber-600 font-bold text-xs">จะต้องถูกหักไม่เกิน -30 คะแนน</p>
+                            </div>
+                        </div>
+
+                        <!-- Rule 2: GPA -->
+                        <div class="bg-white rounded-xl p-4 border border-amber-200 shadow-sm flex items-start gap-3">
+                            <div class="w-7 h-7 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-slate-800 text-sm">เกรดเฉลี่ยในเทอมปัจจุบัน</h4>
+                                <p class="text-emerald-600 font-bold text-xs">จะต้องได้ไม่ต่ำกว่า 2.75</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Rules Box -->
+                    <div class="bg-blue-50/50 border border-blue-200/70 rounded-xl p-4 text-center space-y-3">
+                        <div class="flex items-center justify-center gap-1.5 text-slate-700 font-bold text-xs">
+                            <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
+                            <span>การวัดผล</span>
+                        </div>
+                        <p class="text-blue-700 text-xs font-medium">
+                            ใช้การวัดผลหลังสอบปลายภาคเรียน (ก่อนการสอบแก้ตัว)
+                        </p>
+                        <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+                            <span class="text-slate-500 text-xs font-medium">โดยต้องไม่มีผลการเรียน:</span>
+                            <span class="bg-red-100 text-red-600 font-bold text-xs px-2.5 py-0.5 rounded-full border border-red-200">0</span>
+                            <span class="bg-red-100 text-red-600 font-bold text-xs px-2.5 py-0.5 rounded-full border border-red-200">ม.ส.</span>
+                            <span class="bg-red-100 text-red-600 font-bold text-xs px-2.5 py-0.5 rounded-full border border-red-200">ข.ร.</span>
+                            <span class="bg-red-100 text-red-600 font-bold text-xs px-2.5 py-0.5 rounded-full border border-red-200">ม.ผ.</span>
+                            <span class="bg-red-100 text-red-600 font-bold text-xs px-2.5 py-0.5 rounded-full border border-red-200">ท.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 8: Contact Section -->
+                <div class="text-center space-y-2 py-4 border-t border-slate-200">
+                    <p class="text-slate-600 text-xs font-medium">สอบถามเพิ่มเติม เรื่องของเกณฑ์การพิจารณา หรือ มีข้อสงสัย</p>
+                    <h3 class="font-bold text-slate-800 text-base">โปรดติดต่อ ฝ่ายพัฒนาศักยภาพนักศึกษา</h3>
+                    <div class="inline-flex items-center justify-center gap-2 text-emerald-600 font-bold text-lg bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200">
+                        <i data-lucide="phone-call" class="w-5 h-5"></i>
+                        <span>02-33314515 ต่อ 14</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-400 mt-12">
+        <p>© ระบบบริการข้อมูลนักศึกษา - พัฒนาสำหรับใช้งานบน GitHub Pages</p>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        const SHEET_ID = '1PabZYUYQMZN6l115imw5gay-vCY-dviyR2QOP3Stpvc';
+        
+        // Mock fallback data in case Google Sheet is private or unavailable
+        const MOCK_MEMO = [
+            "ระบบตรวจสอบข้อมูลการพิจารณาทุนการศึกษา",
+            "ตรวจสอบผลการพิจารณาทุน สิทธิการได้รับการยกเว้น และเกณฑ์การประเมิน",
+            "ปรับปรุงข้อมูลล่าสุดประจำภาคเรียนที่ 2/2569"
+        ];
+
+        const MOCK_FIXR = [
+            { class: "ปวช.1/1", status: "Active", memo: "" },
+            { class: "ปวช.1/2", status: "Active", memo: "" },
+            { class: "ปวช.2/1", status: "Inactive", memo: "ระบบปิดปรับปรุงการพิจารณาทุนระดับชั้น ปวช.2/1 ชั่วคราว เพื่อสรุปผลเกรด" }
+        ];
+
+        const MOCK_STUDENTS = [
+            {
+                id: "38874",
+                class: "ปวช.1/1",
+                name: "นางสาวสุชัญญาภัทร์ สุขฤกษ์",
+                tuition: "฿1,000",
+                term: "2/2569",
+                scholarship: "ทุนเรียนฟรีตลอดหลักสูตร",
+                gpaTerm: "1/2569",
+                gpa: "3.50",
+                behaviorScore: "-",
+                failedSubjects: "-",
+                criteriaSummary: "เกรด [✓] | คะแนนพฤติกรรม [✓] | รายวิชา [✓]",
+                initialScholarship: "ทุนเรียนฟรีตลอดหลักสูตร"
+            },
+            {
+                id: "39901",
+                class: "ปวช.2/1",
+                name: "นายสมชาย ใจดี",
+                tuition: "฿2,500",
+                term: "2/2569",
+                scholarship: "ทุน 50%",
+                gpaTerm: "1/2569",
+                gpa: "2.80",
+                behaviorScore: "-10",
+                failedSubjects: "-",
+                criteriaSummary: "เกรด [✓] | คะแนนพฤติกรรม [✓] | รายวิชา [✓]",
+                initialScholarship: "ทุนความสามารถพิเศษ"
+            }
+        ];
+
+        let isDemoMode = false;
+
+        // Font Size Adjuster Function (Levels 1 to 5)
+        function setFontSize(level) {
+            document.body.className = document.body.className.replace(/font-level-\d/g, '');
+            document.body.classList.add(`font-level-${level}`);
+            
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`fbtn-${i}`);
+                if (i === level) {
+                    btn.className = "w-5 h-5 rounded-full text-xs font-semibold flex items-center justify-center transition-all bg-blue-600 text-white font-bold";
+                } else {
+                    btn.className = "w-5 h-5 rounded-full text-xs font-semibold flex items-center justify-center transition-all bg-slate-700 text-slate-300 hover:bg-slate-600";
+                }
+            }
+        }
+
+        function fillSearch(id) {
+            document.getElementById('student-id-input').value = id;
+            searchStudent();
+        }
+
+        // Fetch Google Sheet GViz Endpoint
+        async function fetchSheetData(sheetName) {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+            const response = await fetch(url);
+            const text = await response.text();
+            
+            // Format Google's JSON response
+            const jsonText = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+            const data = JSON.parse(jsonText);
+            
+            return data.table.rows.map(row => 
+                row.c ? row.c.map(cell => cell ? (cell.v !== null ? cell.v : '') : '') : []
+            );
+        }
+
+        // Load Header Data from 'memo' sheet A1:A3
+        async function loadMemoHeader() {
+            try {
+                const rows = await fetchSheetData('memo');
+                if (rows && rows.length > 0) {
+                    const title = rows[0] && rows[0][0] ? rows[0][0] : MOCK_MEMO[0];
+                    const sub1 = rows[1] && rows[1][0] ? rows[1][0] : MOCK_MEMO[1];
+                    const sub2 = rows[2] && rows[2][0] ? rows[2][0] : MOCK_MEMO[2];
+
+                    document.getElementById('memo-title').innerText = title;
+                    document.getElementById('memo-sub1').innerText = sub1;
+                    if(sub2) {
+                        const sub2El = document.getElementById('memo-sub2');
+                        sub2El.innerText = sub2;
+                        sub2El.classList.remove('hidden');
+                    }
+                }
+                document.getElementById('data-source-tag').innerText = "เชื่อมต่อ Google Sheet สำเร็จ";
+                document.getElementById('data-source-tag').classList.add('text-emerald-500');
+            } catch (err) {
+                console.warn("Unable to fetch sheet data directly. Switching to fallback demo data mode.", err);
+                isDemoMode = true;
+                document.getElementById('memo-title').innerText = MOCK_MEMO[0];
+                document.getElementById('memo-sub1').innerText = MOCK_MEMO[1];
+                document.getElementById('data-source-tag').innerText = "โหมดข้อมูลจำลอง (Demo Data)";
+                document.getElementById('data-source-tag').classList.add('text-amber-500');
+            }
+        }
+
+        // Main Search Function
+        async function searchStudent() {
+            const inputId = document.getElementById('student-id-input').value.trim();
+            if (!inputId) {
+                alert('กรุณากรอกรหัสนักศึกษา');
+                return;
+            }
+
+            // Reset UI States
+            document.getElementById('initial-state').classList.add('hidden');
+            document.getElementById('inactive-card').classList.add('hidden');
+            document.getElementById('student-data-view').classList.add('hidden');
+            document.getElementById('loading-spinner').classList.remove('hidden');
+
+            try {
+                let fixRRows = [];
+                let studentRows = [];
+
+                if (!isDemoMode) {
+                    try {
+                        [fixRRows, studentRows] = await Promise.all([
+                            fetchSheetData('FixR'),
+                            fetchSheetData('StudentData')
+                        ]);
+                    } catch (e) {
+                        isDemoMode = true;
+                    }
+                }
+
+                let student = null;
+                let classStatus = { status: 'Active', memo: '' };
+
+                if (!isDemoMode && studentRows.length > 0) {
+                    // Parse Google Sheet Data
+                    // Column Map: 
+                    // A: ID, B: Class, C: Name, D: Tuition, E: Term, F: Scholarship, G: GPA, H: Behavior, I: Failed, J: Criteria, K: InitialScholarship
+                    const parsedStudents = studentRows.slice(1).map(r => ({
+                        id: String(r[0] || '').trim(),
+                        class: String(r[1] || '').trim(),
+                        name: String(r[2] || '').trim(),
+                        tuition: r[3] !== undefined ? (typeof r[3] === 'number' ? `฿${r[3].toLocaleString()}` : String(r[3])) : '',
+                        term: String(r[4] || '').trim(),
+                        scholarship: String(r[5] || '').trim(),
+                        gpaTerm: "1/2569", // default label
+                        gpa: String(r[6] || '-'),
+                        behaviorScore: String(r[7] || '-'),
+                        failedSubjects: String(r[8] || '-'),
+                        criteriaSummary: String(r[9] || '-'), // Column J
+                        initialScholarship: String(r[10] || '-') // Column K
+                    }));
+
+                    student = parsedStudents.find(s => s.id === inputId);
+
+                    if (student && fixRRows.length > 0) {
+                        // Check FixR sheet: Col A = Class, Col B = Status, Col C = Memo
+                        const fixRecord = fixRRows.slice(1).find(r => String(r[0] || '').trim() === student.class);
+                        if (fixRecord) {
+                            classStatus = {
+                                status: String(fixRecord[1] || 'Active').trim(),
+                                memo: String(fixRecord[2] || '').trim()
+                            };
+                        }
+                    }
+                } else {
+                    // Fallback to Mock Data
+                    student = MOCK_STUDENTS.find(s => s.id === inputId);
+                    if (student) {
+                        const fixRecord = MOCK_FIXR.find(f => f.class === student.class);
+                        if (fixRecord) {
+                            classStatus = fixRecord;
+                        }
+                    }
+                }
+
+                document.getElementById('loading-spinner').classList.add('hidden');
+
+                if (!student) {
+                    alert(`ไม่พบข้อมูลนักศึกษารหัส: ${inputId}`);
+                    document.getElementById('initial-state').classList.remove('hidden');
+                    return;
+                }
+
+                // CHECK FIXR STATUS
+                if (classStatus.status.toLowerCase() === 'inactive') {
+                    // Show Inactive Warning Card
+                    document.getElementById('inactive-reason').innerText = classStatus.memo || `ระดับชั้น ${student.class} อยู่ระหว่างปิดปรับปรุงระบบชั่วคราว`;
+                    document.getElementById('inactive-card').classList.remove('hidden');
+                } else {
+                    // Render Student Data View
+                    renderStudentDetails(student);
+                    document.getElementById('student-data-view').classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error("Search error:", error);
+                document.getElementById('loading-spinner').classList.add('hidden');
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง');
+            }
+        }
+
+        // Render Student Information onto the Cards
+        function renderStudentDetails(s) {
+            document.getElementById('res-student-id').innerText = s.id || '-';
+            document.getElementById('res-class-level').innerText = s.class || '-';
+            document.getElementById('res-name').innerText = s.name || '-';
+            document.getElementById('res-tuition').innerText = s.tuition || '-';
+            
+            document.getElementById('res-term-title').innerText = `การพิจารณาทุนในภาคเรียนที่ ${s.term || '2/2569'}`;
+            document.getElementById('res-scholarship-name').innerText = s.scholarship || '-';
+
+            document.getElementById('res-gpa-label').innerText = `ผลการเรียน ภาคเรียนที่ ${s.gpaTerm || '1/2569'}`;
+            document.getElementById('res-gpa').innerText = s.gpa || '-';
+            document.getElementById('res-behavior').innerText = s.behaviorScore || '-';
+            document.getElementById('res-failed').innerText = s.failedSubjects || '-';
+
+            // Column K: Initial Scholarship
+            document.getElementById('res-initial-scholarship').innerText = s.initialScholarship || '-';
+
+            // Column J: Criteria Summary Parsing & Formatting
+            const criteriaContainer = document.getElementById('res-criteria-container');
+            criteriaContainer.innerHTML = ''; // clear previous content
+
+            const rawCriteria = s.criteriaSummary || '';
+            if (rawCriteria.includes('|') || rawCriteria.includes('[✓]')) {
+                // Parse formatted checkmarks
+                const parts = rawCriteria.split('|');
+                parts.forEach((part, index) => {
+                    const cleanText = part.replace(/\[✓\]|\[x\]/g, '').trim();
+                    const isPassed = part.includes('[✓]') || !part.includes('[x]');
+
+                    const badge = document.createElement('div');
+                    badge.className = "flex items-center gap-1.5";
+                    badge.innerHTML = `
+                        <span>${cleanText}</span>
+                        <div class="w-5 h-5 rounded ${isPassed ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'} flex items-center justify-center shadow-sm">
+                            <i data-lucide="${isPassed ? 'check' : 'x'}" class="w-3.5 h-3.5 stroke-[3]"></i>
+                        </div>
+                        ${index < parts.length - 1 ? '<span class="text-slate-300 ml-2">|</span>' : ''}
+                    `;
+                    criteriaContainer.appendChild(badge);
+                });
+            } else {
+                // Simple Text display
+                criteriaContainer.innerText = rawCriteria;
+            }
+
+            // Re-initialize Lucide Icons
+            lucide.createIcons();
+        }
+
+        // Initialize App on Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            loadMemoHeader();
+        });
+    </script>
+</body>
+</html>
