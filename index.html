@@ -142,7 +142,7 @@
                 </button>
             </div>
             <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
-               <span id="data-source-tag" class="text-slate-400 text-[10px]">กำลังเชื่อมต่อข้อมูล...</span>
+                    <span id="data-source-tag" class="text-slate-400 text-[10px]">กำลังเชื่อมต่อข้อมูล...</span>
             </div>
         </div>
 
@@ -318,7 +318,7 @@
 
     <!-- MAIN MODAL: Settings & Reports Dashboard -->
     <div id="report-modal" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden card-enter">
+        <div class="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden card-enter">
             
             <!-- Modal Header -->
             <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between border-b border-slate-800">
@@ -383,11 +383,11 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: Scholarship Summary Report -->
+                <!-- TAB 2: Scholarship Summary Pivot Report -->
                 <div id="tab-content-summary" class="hidden space-y-5">
                     <div class="bg-indigo-50/60 border border-indigo-100 p-4 rounded-xl">
-                        <h4 class="font-bold text-indigo-950 text-sm">สรุปจำนวนนักศึกษาผู้ได้รับทุนแยกตามประเภท และเรียงตามระดับชั้น</h4>
-                        <p class="text-xs text-indigo-700 mt-0.5">แสดงสถิติจำนวนคนในแต่ละห้องเรียนตามสิทธิ์ทุนที่ได้รับ</p>
+                        <h4 class="font-bold text-indigo-950 text-sm">รายงานสรุปจำนวนผู้ได้รับทุน แยกตามประเภททุนและระดับชั้น</h4>
+                        <p class="text-xs text-indigo-700 mt-0.5">ตารางสรุปข้อมูลสถิติจำนวนคนแยกตามระดับชั้น (ปวช.1 - ปวส.2)</p>
                     </div>
 
                     <!-- Cards Overview -->
@@ -395,18 +395,25 @@
                         <!-- Summary Cards filled dynamically -->
                     </div>
 
-                    <!-- Summary Matrix Table -->
+                    <!-- Pivot Summary Matrix Table -->
                     <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
-                        <table class="w-full text-left border-collapse text-sm">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
                             <thead>
-                                <tr class="bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-                                    <th class="p-3">ระดับชั้น</th>
-                                    <th class="p-3">ประเภททุนการศึกษา</th>
-                                    <th class="p-3 text-center">จำนวน (คน)</th>
+                                <tr id="summary-pivot-thead-main" class="bg-slate-900 text-white text-xs font-bold uppercase tracking-wider">
+                                    <th class="p-3 border-r border-slate-800" rowspan="2">ประเภททุนการศึกษา</th>
+                                    <th class="p-2 text-center border-r border-slate-800 bg-blue-900/60" id="th-pvc1">ปวช.1</th>
+                                    <th class="p-2 text-center border-r border-slate-800 bg-indigo-900/60" id="th-pvc2">ปวช.2</th>
+                                    <th class="p-2 text-center border-r border-slate-800 bg-purple-900/60" id="th-pvc3">ปวช.3</th>
+                                    <th class="p-2 text-center border-r border-slate-800 bg-emerald-900/60" id="th-pvs1">ปวส.1</th>
+                                    <th class="p-2 text-center border-r border-slate-800 bg-teal-900/60" id="th-pvs2">ปวส.2</th>
+                                    <th class="p-3 text-center bg-slate-800" rowspan="2">ยอดรวม</th>
+                                </tr>
+                                <tr id="summary-pivot-thead-sub" class="bg-slate-800 text-slate-300 text-[11px] font-semibold border-b border-slate-700">
+                                    <!-- Sub headers generated dynamically for classes like ปวช.1/1, ปวช.1/2 -->
                                 </tr>
                             </thead>
-                            <tbody id="summary-report-tbody" class="divide-y divide-slate-200 bg-white">
-                                <!-- Data rows inserted dynamically -->
+                            <tbody id="summary-pivot-tbody" class="divide-y divide-slate-200 bg-white">
+                                <!-- Dynamic Pivot Rows -->
                             </tbody>
                         </table>
                     </div>
@@ -423,7 +430,7 @@
         </div>
     </div>
 
-    <!-- SUB MODAL: Student Detail View Preview (Popup when clicking 'View') -->
+    <!-- SUB MODAL: Student Detail View Preview -->
     <div id="student-view-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
         <div class="bg-slate-50 rounded-2xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden card-enter border border-slate-200">
             
@@ -438,7 +445,7 @@
                 </button>
             </div>
 
-            <!-- Sub-Modal Content View (Mirroring Main View) -->
+            <!-- Sub-Modal Content View -->
             <div class="p-5 flex-1 overflow-y-auto custom-scrollbar space-y-5">
                 
                 <!-- ROW 1: Student ID & Class Level -->
@@ -585,7 +592,7 @@
             },
             {
                 id: "38539",
-                class: "ปวช.1/1",
+                class: "ปวช.1/2",
                 name: "นางสาวกนกวรรณ สุ่มหิรัญ",
                 tuition: "฿1,000",
                 term: "2/2569",
@@ -599,7 +606,7 @@
             },
             {
                 id: "38549",
-                class: "ปวช.1/1",
+                class: "ปวช.1/2",
                 name: "นางสาวศรัยฉัตร ยืนยัง",
                 tuition: "฿7,765",
                 term: "2/2569",
@@ -624,6 +631,20 @@
                 failedSubjects: "0",
                 criteriaSummary: "เกรด ✅ | คะแนนพฤติกรรม ✅ | รายวิชา ✅",
                 initialScholarship: "ทุนความสามารถพิเศษ"
+            },
+            {
+                id: "40102",
+                class: "ปวส.1/1",
+                name: "นางสาวศิริพร สุขสวัสดิ์",
+                tuition: "฿1,500",
+                term: "2/2569",
+                scholarship: "ทุนเรียนฟรีตลอดหลักสูตร",
+                gpaTerm: "1/2569",
+                gpa: "3.90",
+                behaviorScore: "0",
+                failedSubjects: "0",
+                criteriaSummary: "เกรด ✅ | คะแนนพฤติกรรม ✅ | รายวิชา ✅",
+                initialScholarship: "ทุนเรียนฟรีตลอดหลักสูตร"
             }
         ];
 
@@ -981,24 +1002,16 @@
             document.getElementById('student-view-modal').classList.add('hidden');
         }
 
+        // PIVOT SCHOLARSHIP SUMMARY REPORT GENERATOR
         function loadScholarshipSummaryData() {
             const cardsGrid = document.getElementById('scholarship-cards-grid');
-            const tbody = document.getElementById('summary-report-tbody');
             cardsGrid.innerHTML = '';
-            tbody.innerHTML = '';
 
+            // 1. Calculate Summary Cards
             const schMap = {};
-            const matrixMap = {};
-
             allStudentsCache.forEach(s => {
                 const sch = s.scholarship || 'ไม่ระบุ';
-                const cls = s.class || 'ไม่ระบุ';
-
                 schMap[sch] = (schMap[sch] || 0) + 1;
-
-                const key = `${cls}___${sch}`;
-                matrixMap[key] = (matrixMap[key] || { class: cls, scholarship: sch, count: 0 });
-                matrixMap[key].count += 1;
             });
 
             Object.entries(schMap).forEach(([schName, count]) => {
@@ -1016,21 +1029,85 @@
                 cardsGrid.appendChild(card);
             });
 
-            const matrixList = Object.values(matrixMap).sort((a, b) => a.class.localeCompare(b.class));
+            // 2. Build Pivot Matrix for Main Categories: ปวช.1, ปวช.2, ปวช.3, ปวส.1, ปวส.2
+            const mainCategories = ['ปวช.1', 'ปวช.2', 'ปวช.3', 'ปวส.1', 'ปวส.2'];
             
-            if (matrixList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400 text-xs">ไม่มีข้อมูลสรุป</td></tr>`;
+            // Extract unique sub-classes (e.g., ปวช.1/1, ปวช.1/2)
+            const uniqueClasses = [...new Set(allStudentsCache.map(s => s.class))].filter(Boolean).sort();
+
+            // Group sub-classes under main categories
+            const catMap = {
+                'ปวช.1': [], 'ปวช.2': [], 'ปวช.3': [], 'ปวส.1': [], 'ปวส.2': []
+            };
+
+            uniqueClasses.forEach(cls => {
+                if (cls.startsWith('ปวช.1')) catMap['ปวช.1'].push(cls);
+                else if (cls.startsWith('ปวช.2')) catMap['ปวช.2'].push(cls);
+                else if (cls.startsWith('ปวช.3')) catMap['ปวช.3'].push(cls);
+                else if (cls.startsWith('ปวส.1')) catMap['ปวส.1'].push(cls);
+                else if (cls.startsWith('ปวส.2')) catMap['ปวส.2'].push(cls);
+                else {
+                    // Fallback to closest match or assign to ปวช.1
+                    catMap['ปวช.1'].push(cls);
+                }
+            });
+
+            // Set Header Colspans
+            document.getElementById('th-pvc1').colSpan = Math.max(catMap['ปวช.1'].length, 1);
+            document.getElementById('th-pvc2').colSpan = Math.max(catMap['ปวช.2'].length, 1);
+            document.getElementById('th-pvc3').colSpan = Math.max(catMap['ปวช.3'].length, 1);
+            document.getElementById('th-pvs1').colSpan = Math.max(catMap['ปวส.1'].length, 1);
+            document.getElementById('th-pvs2').colSpan = Math.max(catMap['ปวส.2'].length, 1);
+
+            // Render Sub Header
+            const subHeadRow = document.getElementById('summary-pivot-thead-sub');
+            subHeadRow.innerHTML = '';
+            
+            let allOrderedSubClasses = [];
+            mainCategories.forEach(cat => {
+                if (catMap[cat].length > 0) {
+                    catMap[cat].forEach(subCls => {
+                        allOrderedSubClasses.push(subCls);
+                        subHeadRow.innerHTML += `<th class="p-2 text-center border-r border-slate-700 font-medium">${subCls}</th>`;
+                    });
+                } else {
+                    allOrderedSubClasses.push(cat); // placeholder
+                    subHeadRow.innerHTML += `<th class="p-2 text-center border-r border-slate-700 font-medium text-slate-500">-</th>`;
+                }
+            });
+
+            // 3. Populate Pivot Body
+            const tbody = document.getElementById('summary-pivot-tbody');
+            tbody.innerHTML = '';
+
+            const allScholarshipTypes = [...new Set(allStudentsCache.map(s => s.scholarship))].filter(Boolean);
+
+            if (allScholarshipTypes.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${allOrderedSubClasses.length + 2}" class="p-4 text-center text-slate-400 text-xs">ไม่มีข้อมูลสรุป</td></tr>`;
                 return;
             }
 
-            matrixList.forEach(item => {
+            allScholarshipTypes.forEach(schType => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition-colors";
-                tr.innerHTML = `
-                    <td class="p-3 font-bold text-slate-800"><span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-xs border border-slate-200">${item.class}</span></td>
-                    <td class="p-3 font-medium text-purple-700">${item.scholarship}</td>
-                    <td class="p-3 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full text-xs">${item.count} คน</span></td>
-                `;
+                tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-200";
+
+                let rowHtml = `<td class="p-3 font-semibold text-slate-800 border-r border-slate-200 bg-slate-50/50">${schType}</td>`;
+                let totalRowUsers = 0;
+
+                allOrderedSubClasses.forEach(subCls => {
+                    const count = allStudentsCache.filter(s => s.scholarship === schType && s.class === subCls).length;
+                    totalRowUsers += count;
+                    
+                    if (count > 0) {
+                        rowHtml += `<td class="p-2 text-center font-bold text-emerald-600 bg-emerald-50/30 border-r border-slate-200">${count}</td>`;
+                    } else {
+                        rowHtml += `<td class="p-2 text-center text-slate-300 border-r border-slate-200">-</td>`;
+                    }
+                });
+
+                // Row Total
+                rowHtml += `<td class="p-3 text-center font-bold text-blue-700 bg-blue-50/50">${totalRowUsers} คน</td>`;
+                tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
 
