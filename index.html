@@ -142,8 +142,7 @@
                 </button>
             </div>
             <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
-                <span>ทดสอบรหัสตัวอย่าง: <button onclick="fillSearch('38874')" class="text-blue-600 underline font-medium hover:text-blue-800">38874 (Active)</button>, <button onclick="fillSearch('39901')" class="text-blue-600 underline font-medium hover:text-blue-800">39901 (Inactive)</button></span>
-                <span id="data-source-tag" class="text-slate-400 text-[10px]">กำลังเชื่อมต่อข้อมูล...</span>
+               <span id="data-source-tag" class="text-slate-400 text-[10px]">กำลังเชื่อมต่อข้อมูล...</span>
             </div>
         </div>
 
@@ -242,7 +241,7 @@
                 <div class="bg-rose-50/30 border-2 border-rose-200/90 rounded-2xl p-5 border-left-accent-pink shadow-sm space-y-3">
                     <span class="text-slate-700 font-bold text-xs uppercase tracking-wider block">เกณฑ์</span>
                     <div id="res-criteria-container" class="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-800 font-medium text-sm">
-                        <!-- Dynamic content directly from Col J without redundant icons -->
+                        <!-- Dynamic content directly from Col J -->
                     </div>
                 </div>
 
@@ -317,8 +316,8 @@
         </div>
     </main>
 
-    <!-- MODAL: Settings & Reports Dashboard -->
-    <div id="report-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <!-- MAIN MODAL: Settings & Reports Dashboard -->
+    <div id="report-modal" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden card-enter">
             
             <!-- Modal Header -->
@@ -374,7 +373,7 @@
                                     <th class="p-3">ระดับชั้น</th>
                                     <th class="p-3">ผลพิจารณาทุน</th>
                                     <th class="p-3 text-right">ยอดชำระ</th>
-                                    <th class="p-3 text-center">เกรด</th>
+                                    <th class="p-3 text-center">View</th>
                                 </tr>
                             </thead>
                             <tbody id="class-report-tbody" class="divide-y divide-slate-200 bg-white">
@@ -424,6 +423,95 @@
         </div>
     </div>
 
+    <!-- SUB MODAL: Student Detail View Preview (Popup when clicking 'View') -->
+    <div id="student-view-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-slate-50 rounded-2xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden card-enter border border-slate-200">
+            
+            <!-- Sub-Modal Header -->
+            <div class="bg-blue-700 text-white px-5 py-3.5 flex items-center justify-between border-b border-blue-800">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="user-check" class="w-5 h-5 text-blue-200"></i>
+                    <h3 class="font-bold text-base leading-tight">ข้อมูลการพิจารณาทุนการศึกษา (รายบุคคล)</h3>
+                </div>
+                <button onclick="closeStudentViewModal()" class="bg-blue-800/80 hover:bg-blue-900 text-white p-1 rounded-lg transition-all flex items-center justify-center">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Sub-Modal Content View (Mirroring Main View) -->
+            <div class="p-5 flex-1 overflow-y-auto custom-scrollbar space-y-5">
+                
+                <!-- ROW 1: Student ID & Class Level -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    <div class="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 border-left-accent-blue shadow-sm flex flex-col justify-between">
+                        <span class="text-blue-600 font-semibold text-xs tracking-wide">รหัสนักศึกษา</span>
+                        <div id="preview-student-id" class="text-xl font-bold text-slate-800 mt-1">-</div>
+                    </div>
+                    <div class="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 border-left-accent-green shadow-sm flex flex-col justify-between">
+                        <span class="text-emerald-700 font-semibold text-xs tracking-wide">ระดับชั้น</span>
+                        <div id="preview-class-level" class="text-xl font-bold text-emerald-900 mt-1">-</div>
+                    </div>
+                </div>
+
+                <!-- ROW 2: Name & Tuition Fee -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    <div class="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 border-left-accent-purple shadow-sm flex flex-col justify-between">
+                        <span class="text-purple-700 font-semibold text-xs tracking-wide">ชื่อ-นามสกุล</span>
+                        <div id="preview-name" class="text-base font-bold text-slate-800 mt-1">-</div>
+                    </div>
+                    <div class="bg-rose-50/70 border border-rose-200/80 rounded-2xl p-4 border-left-accent-pink shadow-sm flex flex-col justify-between">
+                        <span class="text-rose-600 font-semibold text-xs tracking-wide">ยอดค่าเทอมที่ต้องชำระ</span>
+                        <div id="preview-tuition" class="text-xl font-bold text-rose-600 mt-1">-</div>
+                    </div>
+                </div>
+
+                <!-- ROW 3: Scholarship Consideration Result Card -->
+                <div class="bg-purple-50/50 border-2 border-purple-200 rounded-2xl p-5 border-left-accent-purple shadow-sm space-y-1.5">
+                    <span id="preview-term-title" class="text-slate-600 font-semibold text-xs block">การพิจารณาทุนในภาคเรียนที่ 2/2569</span>
+                    <h2 id="preview-scholarship-name" class="text-xl font-bold text-slate-900">-</h2>
+                </div>
+
+                <!-- ROW 4: Academic Performance Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                    <div class="bg-blue-50/50 border border-blue-200/80 rounded-2xl p-4 border-left-accent-blue shadow-sm space-y-1">
+                        <span id="preview-gpa-label" class="text-blue-700 font-semibold text-xs block truncate">ผลการเรียน ภาคเรียนที่ 1/2569</span>
+                        <div id="preview-gpa" class="text-xl font-bold text-slate-800">-</div>
+                    </div>
+                    <div class="bg-emerald-50/50 border border-emerald-200/80 rounded-2xl p-4 border-left-accent-green shadow-sm space-y-1">
+                        <span class="text-emerald-700 font-semibold text-xs block">คะแนนพฤติกรรม</span>
+                        <div id="preview-behavior" class="text-xl font-bold text-slate-800">-</div>
+                    </div>
+                    <div class="bg-purple-50/50 border border-purple-200/80 rounded-2xl p-4 border-left-accent-purple shadow-sm space-y-1">
+                        <span class="text-purple-700 font-semibold text-xs block">รายวิชาที่ไม่ผ่าน</span>
+                        <div id="preview-failed" class="text-xl font-bold text-slate-800">-</div>
+                    </div>
+                </div>
+
+                <!-- ROW 5: Criteria Summary Card -->
+                <div class="bg-rose-50/40 border-2 border-rose-200/90 rounded-2xl p-5 border-left-accent-pink shadow-sm space-y-3">
+                    <span class="text-slate-700 font-bold text-xs uppercase tracking-wider block">เกณฑ์</span>
+                    <div id="preview-criteria-container" class="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-800 font-medium text-sm">
+                        <!-- Dynamic criteria content -->
+                    </div>
+                </div>
+
+                <!-- ROW 6: Initial Scholarship Info -->
+                <div class="bg-indigo-50/50 border border-indigo-200/80 rounded-2xl p-5 border-left-accent-blue shadow-sm space-y-1.5">
+                    <span class="text-slate-500 font-semibold text-xs block">ข้อมูลทุนแรกเข้าของนักศึกษา</span>
+                    <div id="preview-initial-scholarship" class="text-lg font-bold text-indigo-950">-</div>
+                </div>
+            </div>
+
+            <!-- Sub-Modal Footer -->
+            <div class="bg-white px-5 py-3 border-t border-slate-200 flex justify-end">
+                <button onclick="closeStudentViewModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-md">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>ปิดหน้าต่างนี้</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="text-center text-xs text-slate-400 mt-12">
         <p>© ระบบบริการข้อมูลนักศึกษา - พัฒนาสำหรับใช้งานบน GitHub Pages</p>
@@ -468,31 +556,59 @@
                 initialScholarship: "ทุนเรียนฟรีตลอดหลักสูตร"
             },
             {
-                id: "38875",
+                id: "38516",
                 class: "ปวช.1/1",
-                name: "นายปิยะวัฒน์ มงคล",
+                name: "นางสาวดารินทร์ ลิมปู",
                 tuition: "฿1,000",
                 term: "2/2569",
                 scholarship: "ทุนเรียนฟรีตลอดหลักสูตร",
                 gpaTerm: "1/2569",
-                gpa: "3.75",
+                gpa: "3.65",
                 behaviorScore: "0",
                 failedSubjects: "0",
                 criteriaSummary: "เกรด ✅ | คะแนนพฤติกรรม ✅ | รายวิชา ✅",
                 initialScholarship: "ทุนเรียนฟรีตลอดหลักสูตร"
             },
             {
-                id: "38880",
-                class: "ปวช.1/2",
-                name: "นางสาวกานดา มีสุข",
-                tuition: "฿2,000",
+                id: "38529",
+                class: "ปวช.1/1",
+                name: "นายรัฐกุล มหาลาภ",
+                tuition: "฿1,000",
                 term: "2/2569",
-                scholarship: "ทุน 50%",
+                scholarship: "ทุนเรียนฟรีตลอดหลักสูตร",
                 gpaTerm: "1/2569",
-                gpa: "3.20",
-                behaviorScore: "-5",
+                gpa: "3.46",
+                behaviorScore: "0",
                 failedSubjects: "0",
                 criteriaSummary: "เกรด ✅ | คะแนนพฤติกรรม ✅ | รายวิชา ✅",
+                initialScholarship: "ทุนเรียนฟรีตลอดหลักสูตร"
+            },
+            {
+                id: "38539",
+                class: "ปวช.1/1",
+                name: "นางสาวกนกวรรณ สุ่มหิรัญ",
+                tuition: "฿1,000",
+                term: "2/2569",
+                scholarship: "ทุนเรียนฟรีตลอดหลักสูตร",
+                gpaTerm: "1/2569",
+                gpa: "3.56",
+                behaviorScore: "0",
+                failedSubjects: "0",
+                criteriaSummary: "เกรด ✅ | คะแนนพฤติกรรม ✅ | รายวิชา ✅",
+                initialScholarship: "ทุนเรียนฟรีตลอดหลักสูตร"
+            },
+            {
+                id: "38549",
+                class: "ปวช.1/1",
+                name: "นางสาวศรัยฉัตร ยืนยัง",
+                tuition: "฿7,765",
+                term: "2/2569",
+                scholarship: "ไม่ผ่านเกณฑ์ ปรับแก้ไขข้อผิดพลาดในเทอมหน้า",
+                gpaTerm: "1/2569",
+                gpa: "2.56",
+                behaviorScore: "-35",
+                failedSubjects: "1",
+                criteriaSummary: "เกรด ❌ | คะแนนพฤติกรรม ❌ | รายวิชา ❌",
                 initialScholarship: "ทุน 50%"
             },
             {
@@ -673,7 +789,7 @@
             }
         }
 
-        // Render Student Information onto the Cards
+        // Render Student Information onto the Main View Cards
         function renderStudentDetails(s) {
             document.getElementById('res-student-id').innerText = s.id || '-';
             document.getElementById('res-class-level').innerText = s.class || '-';
@@ -717,7 +833,6 @@
         async function openReportModal() {
             document.getElementById('report-modal').classList.remove('hidden');
             
-            // Fetch student data if cache is empty
             if (allStudentsCache.length === 0) {
                 if (!isDemoMode) {
                     try {
@@ -807,10 +922,63 @@
                     <td class="p-3"><span class="bg-blue-50 text-blue-700 font-semibold px-2.5 py-1 rounded-md text-xs border border-blue-100">${s.class}</span></td>
                     <td class="p-3 font-medium text-purple-700">${s.scholarship}</td>
                     <td class="p-3 text-right font-bold text-rose-600">${s.tuition}</td>
-                    <td class="p-3 text-center font-bold text-slate-800">${s.gpa}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="openStudentViewModal('${s.id}')" class="inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white font-semibold px-3 py-1 rounded-lg text-xs border border-blue-200 transition-all active:scale-95 shadow-sm">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                            <span>View</span>
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
+            lucide.createIcons();
+        }
+
+        // OPEN SUB MODAL: View full student details in popup
+        function openStudentViewModal(studentId) {
+            const s = allStudentsCache.find(item => item.id === studentId);
+            if (!s) return;
+
+            document.getElementById('preview-student-id').innerText = s.id || '-';
+            document.getElementById('preview-class-level').innerText = s.class || '-';
+            document.getElementById('preview-name').innerText = s.name || '-';
+            document.getElementById('preview-tuition').innerText = s.tuition || '-';
+            
+            document.getElementById('preview-term-title').innerText = `การพิจารณาทุนในภาคเรียนที่ ${s.term || '2/2569'}`;
+            document.getElementById('preview-scholarship-name').innerText = s.scholarship || '-';
+
+            document.getElementById('preview-gpa-label').innerText = `ผลการเรียน ภาคเรียนที่ ${s.gpaTerm || '1/2569'}`;
+            document.getElementById('preview-gpa').innerText = s.gpa;
+            document.getElementById('preview-behavior').innerText = s.behaviorScore;
+            document.getElementById('preview-failed').innerText = s.failedSubjects;
+
+            document.getElementById('preview-initial-scholarship').innerText = s.initialScholarship || '-';
+
+            const criteriaContainer = document.getElementById('preview-criteria-container');
+            criteriaContainer.innerHTML = '';
+
+            const rawCriteria = s.criteriaSummary || '';
+            if (rawCriteria.includes('|')) {
+                const parts = rawCriteria.split('|');
+                parts.forEach((part, index) => {
+                    const badge = document.createElement('div');
+                    badge.className = "flex items-center gap-1.5";
+                    badge.innerHTML = `
+                        <span>${part.trim()}</span>
+                        ${index < parts.length - 1 ? '<span class="text-slate-300 ml-2">|</span>' : ''}
+                    `;
+                    criteriaContainer.appendChild(badge);
+                });
+            } else {
+                criteriaContainer.innerText = rawCriteria;
+            }
+
+            document.getElementById('student-view-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeStudentViewModal() {
+            document.getElementById('student-view-modal').classList.add('hidden');
         }
 
         function loadScholarshipSummaryData() {
@@ -819,25 +987,20 @@
             cardsGrid.innerHTML = '';
             tbody.innerHTML = '';
 
-            // Group by Scholarship type
             const schMap = {};
-            // Group by Class & Scholarship
             const matrixMap = {};
 
             allStudentsCache.forEach(s => {
                 const sch = s.scholarship || 'ไม่ระบุ';
                 const cls = s.class || 'ไม่ระบุ';
 
-                // Total count per scholarship
                 schMap[sch] = (schMap[sch] || 0) + 1;
 
-                // Matrix count
                 const key = `${cls}___${sch}`;
                 matrixMap[key] = (matrixMap[key] || { class: cls, scholarship: sch, count: 0 });
                 matrixMap[key].count += 1;
             });
 
-            // Render Overview Cards
             Object.entries(schMap).forEach(([schName, count]) => {
                 const card = document.createElement('div');
                 card.className = "bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between";
@@ -853,7 +1016,6 @@
                 cardsGrid.appendChild(card);
             });
 
-            // Render Matrix Table (Sorted by Class)
             const matrixList = Object.values(matrixMap).sort((a, b) => a.class.localeCompare(b.class));
             
             if (matrixList.length === 0) {
