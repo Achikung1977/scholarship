@@ -162,7 +162,7 @@
                 </div>
             </div>
 
-            <!-- Main Student Details View (Matching A1x & A2 Images) -->
+            <!-- Main Student Details View -->
             <div id="student-data-view" class="hidden space-y-5 card-enter">
                 
                 <!-- ROW 1: Student ID & Class Level -->
@@ -218,11 +218,11 @@
                     </div>
                 </div>
 
-                <!-- ROW 5: Criteria Summary Card (Column J) -->
+                <!-- ROW 5: Criteria Summary Card (Column J Direct Display) -->
                 <div class="bg-rose-50/30 border-2 border-rose-200/90 rounded-2xl p-5 border-left-accent-pink shadow-sm space-y-3">
                     <span class="text-slate-700 font-bold text-xs uppercase tracking-wider block">เกณฑ์</span>
                     <div id="res-criteria-container" class="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-800 font-medium text-sm">
-                        <!-- Dynamic content from Col J -->
+                        <!-- Dynamic content directly from Col J without redundant icons -->
                     </div>
                 </div>
 
@@ -232,7 +232,7 @@
                     <div id="res-initial-scholarship" class="text-lg font-bold text-indigo-950">ทุนเรียนฟรีตลอดหลักสูตร</div>
                 </div>
 
-                <!-- ROW 7: Criteria Rules Details Box (A2 Image design) -->
+                <!-- ROW 7: Criteria Rules Details Box -->
                 <div class="bg-amber-50/40 border border-amber-200/80 rounded-2xl p-5 md:p-6 shadow-sm space-y-5">
                     <div class="flex items-center justify-center gap-2 text-amber-800 font-bold text-base border-b border-amber-200/60 pb-3">
                         <div class="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-serif font-bold">i</div>
@@ -328,10 +328,10 @@
                 term: "2/2569",
                 scholarship: "ทุนเรียนฟรีตลอดหลักสูตร",
                 gpaTerm: "1/2569",
-                gpa: "3.50",
+                gpa: "3.5",
                 behaviorScore: "-",
                 failedSubjects: "-",
-                criteriaSummary: "เกรด [✓] | คะแนนพฤติกรรม [✓] | รายวิชา [✓]",
+                criteriaSummary: "เกรด ✅ | คะแนนพฤติกรรม ✅ | รายวิชา ✅",
                 initialScholarship: "ทุนเรียนฟรีตลอดหลักสูตร"
             },
             {
@@ -345,7 +345,7 @@
                 gpa: "2.80",
                 behaviorScore: "-10",
                 failedSubjects: "-",
-                criteriaSummary: "เกรด [✓] | คะแนนพฤติกรรม [✓] | รายวิชา [✓]",
+                criteriaSummary: "เกรด ✅ | คะแนนพฤติกรรม ✅ | รายวิชา ✅",
                 initialScholarship: "ทุนความสามารถพิเศษ"
             }
         ];
@@ -534,31 +534,25 @@
             // Column K: Initial Scholarship
             document.getElementById('res-initial-scholarship').innerText = s.initialScholarship || '-';
 
-            // Column J: Criteria Summary Parsing & Formatting
+            // Column J: Criteria Summary Direct Display
             const criteriaContainer = document.getElementById('res-criteria-container');
             criteriaContainer.innerHTML = ''; // clear previous content
 
             const rawCriteria = s.criteriaSummary || '';
-            if (rawCriteria.includes('|') || rawCriteria.includes('[✓]')) {
-                // Parse formatted checkmarks
+            if (rawCriteria.includes('|')) {
+                // Parse text separated by '|'
                 const parts = rawCriteria.split('|');
                 parts.forEach((part, index) => {
-                    const cleanText = part.replace(/\[✓\]|\[x\]/g, '').trim();
-                    const isPassed = part.includes('[✓]') || !part.includes('[x]');
-
                     const badge = document.createElement('div');
                     badge.className = "flex items-center gap-1.5";
                     badge.innerHTML = `
-                        <span>${cleanText}</span>
-                        <div class="w-5 h-5 rounded ${isPassed ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'} flex items-center justify-center shadow-sm">
-                            <i data-lucide="${isPassed ? 'check' : 'x'}" class="w-3.5 h-3.5 stroke-[3]"></i>
-                        </div>
+                        <span>${part.trim()}</span>
                         ${index < parts.length - 1 ? '<span class="text-slate-300 ml-2">|</span>' : ''}
                     `;
                     criteriaContainer.appendChild(badge);
                 });
             } else {
-                // Simple Text display
+                // Direct Text display
                 criteriaContainer.innerText = rawCriteria;
             }
 
