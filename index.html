@@ -102,7 +102,7 @@
                 </div>
 
                 <!-- Settings Gear Icon Button -->
-                <button onclick="openReportModal()" title="รายงานและสรุปข้อมูล" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-full border border-slate-700 transition-all active:scale-95 flex items-center justify-center">
+                <button onclick="promptSettingsPassword()" title="รายงานและสรุปข้อมูล" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-full border border-slate-700 transition-all active:scale-95 flex items-center justify-center">
                     <i data-lucide="settings" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -142,7 +142,8 @@
                 </button>
             </div>
             <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
-                    <span id="data-source-tag" class="text-slate-400 text-[10px]">กำลังเชื่อมต่อข้อมูล...</span>
+                <span>ทดสอบรหัสตัวอย่าง: ผลการเรียนจะเป็นผลหลังสอบวัดผลปลายภาค <b>ไม่นับรวม</b>ที่นักศึกษาสอบแก้ตัวทั้งไม่มีค่าใช้จ่าย และ มีค่าใช้จ่าย </span>
+                <span id="data-source-tag" class="text-slate-400 text-[10px]">กำลังเชื่อมต่อข้อมูล...</span>
             </div>
         </div>
 
@@ -303,6 +304,41 @@
             </div>
         </div>
     </main>
+
+    <!-- PASSWORD MODAL for Settings Access -->
+    <div id="password-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4 card-enter border border-slate-100">
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+                    <i data-lucide="lock" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-lg">เข้าสู่ระบบรายงานข้อมูล</h3>
+                <p class="text-xs text-slate-500">กรุณากรอกรหัสผ่านเพื่อเข้าใช้งานเมนูรายงานและสรุปข้อมูล</p>
+            </div>
+
+            <div class="space-y-3">
+                <div class="relative">
+                    <input type="password" id="settings-password-input" placeholder="กรอกรหัสผ่าน..." 
+                           class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none text-slate-800 font-medium text-sm transition-all"
+                           onkeypress="if(event.key === 'Enter') checkSettingsPassword()">
+                    <i data-lucide="key-round" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"></i>
+                </div>
+                <p id="password-error-msg" class="text-xs text-rose-600 font-medium hidden text-center flex items-center justify-center gap-1">
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                    <span>รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</span>
+                </p>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="closePasswordModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 rounded-xl text-xs transition-all">
+                    ยกเลิก
+                </button>
+                <button onclick="checkSettingsPassword()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-xl text-xs shadow-md hover:shadow-lg transition-all active:scale-95">
+                    ยืนยัน
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- MAIN MODAL: Settings & Reports Dashboard -->
     <div id="report-modal" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
@@ -493,6 +529,7 @@
     <!-- Application Script -->
     <script>
         const SHEET_ID = '1PabZYUYQMZN6l115imw5gay-vCY-dviyR2QOP3Stpvc';
+        const SETTINGS_PASS = 'saha1952';
         
         function formatVal(val, defaultVal = '-') {
             if (val === undefined || val === null || val === '') return defaultVal;
@@ -523,7 +560,6 @@
 
         let isDemoMode = false;
         let allStudentsCache = [];
-        // Track expanded state for main categories
         const expandedCategoryMap = { 'ปวช.1': false, 'ปวช.2': false, 'ปวช.3': false, 'ปวส.1': false, 'ปวส.2': false };
 
         function setFontSize(level) {
@@ -543,6 +579,30 @@
         function fillSearch(id) {
             document.getElementById('student-id-input').value = id;
             searchStudent();
+        }
+
+        // PASSWORD PROTECTION FUNCTIONS
+        function promptSettingsPassword() {
+            document.getElementById('settings-password-input').value = '';
+            document.getElementById('password-error-msg').classList.add('hidden');
+            document.getElementById('password-modal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('settings-password-input').focus();
+            }, 100);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('password-modal').classList.add('hidden');
+        }
+
+        function checkSettingsPassword() {
+            const inputPass = document.getElementById('settings-password-input').value.trim();
+            if (inputPass === SETTINGS_PASS) {
+                closePasswordModal();
+                openReportModal();
+            } else {
+                document.getElementById('password-error-msg').classList.remove('hidden');
+            }
         }
 
         async function fetchSheetData(sheetName) {
@@ -866,18 +926,15 @@
             document.getElementById('student-view-modal').classList.add('hidden');
         }
 
-        // TOGGLE CATEGORY COLLAPSE
         function toggleCategoryExpand(categoryName) {
             expandedCategoryMap[categoryName] = !expandedCategoryMap[categoryName];
             loadScholarshipSummaryData();
         }
 
-        // DYNAMIC INTERACTIVE PIVOT SCHOLARSHIP SUMMARY REPORT
         function loadScholarshipSummaryData() {
             const cardsGrid = document.getElementById('scholarship-cards-grid');
             cardsGrid.innerHTML = '';
 
-            // 1. Overview Summary Cards
             const schMap = {};
             allStudentsCache.forEach(s => {
                 const sch = s.scholarship || 'ไม่ระบุ';
@@ -899,7 +956,6 @@
                 cardsGrid.appendChild(card);
             });
 
-            // 2. Build Interactive Collapsible Matrix
             const mainCategories = ['ปวช.1', 'ปวช.2', 'ปวช.3', 'ปวส.1', 'ปวส.2'];
             const uniqueClasses = [...new Set(allStudentsCache.map(s => s.class))].filter(Boolean).sort();
 
@@ -919,9 +975,6 @@
             theadRow1.innerHTML = '';
             theadRow2.innerHTML = '';
 
-            let hasAnySubHeaders = false;
-
-            // Build Row 1 Headers with click events
             let r1Html = `<th class="p-3 border-r border-slate-800 text-left" ${Object.values(expandedCategoryMap).some(v=>v) ? 'rowspan="2"' : ''}>ประเภททุนการศึกษา</th>`;
 
             mainCategories.forEach(cat => {
@@ -929,7 +982,6 @@
                 const subClasses = catSubMap[cat];
 
                 if (isExpanded && subClasses.length > 0) {
-                    hasAnySubHeaders = true;
                     r1Html += `
                         <th onclick="toggleCategoryExpand('${cat}')" class="p-2.5 text-center border-r border-slate-800 cursor-pointer bg-blue-800 hover:bg-blue-700 transition-colors select-none" colspan="${subClasses.length}">
                             <div class="flex items-center justify-center gap-1">
@@ -956,7 +1008,6 @@
             r1Html += `<th class="p-3 text-center bg-slate-800 text-blue-400" ${Object.values(expandedCategoryMap).some(v=>v) ? 'rowspan="2"' : ''}>รวมทั้งสิ้น</th>`;
             theadRow1.innerHTML = r1Html;
 
-            // 3. Render Table Rows
             const tbody = document.getElementById('summary-pivot-tbody');
             tbody.innerHTML = '';
 
@@ -988,7 +1039,6 @@
                             }
                         });
                     } else {
-                        // Display Aggregate Category Count
                         const catTotal = allStudentsCache.filter(s => s.scholarship === schType && s.class.startsWith(cat)).length;
                         totalRowUsers += catTotal;
                         
@@ -1000,7 +1050,6 @@
                     }
                 });
 
-                // Calculate Grand Total for Row
                 if (Object.values(expandedCategoryMap).some(v => v)) {
                     totalRowUsers = allStudentsCache.filter(s => s.scholarship === schType).length;
                 }
