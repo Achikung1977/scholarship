@@ -204,17 +204,17 @@
                     <!-- GPA Card -->
                     <div class="bg-blue-50/40 border border-blue-200/80 rounded-2xl p-4 border-left-accent-blue shadow-sm space-y-1">
                         <span id="res-gpa-label" class="text-blue-700 font-semibold text-xs block truncate">ผลการเรียน ภาคเรียนที่ 1/2569</span>
-                        <div id="res-gpa" class="text-xl font-bold text-slate-800">3.5</div>
+                        <div id="res-gpa" class="text-xl font-bold text-slate-800">3.89</div>
                     </div>
                     <!-- Behavior Score Card -->
                     <div class="bg-emerald-50/40 border border-emerald-200/80 rounded-2xl p-4 border-left-accent-green shadow-sm space-y-1">
                         <span class="text-emerald-700 font-semibold text-xs block">คะแนนพฤติกรรม</span>
-                        <div id="res-behavior" class="text-xl font-bold text-slate-800">-</div>
+                        <div id="res-behavior" class="text-xl font-bold text-slate-800">0</div>
                     </div>
                     <!-- Failed Subjects Card -->
                     <div class="bg-purple-50/40 border border-purple-200/80 rounded-2xl p-4 border-left-accent-purple shadow-sm space-y-1">
                         <span class="text-purple-700 font-semibold text-xs block">รายวิชาที่ไม่ผ่าน</span>
-                        <div id="res-failed" class="text-xl font-bold text-slate-800">-</div>
+                        <div id="res-failed" class="text-xl font-bold text-slate-800">0</div>
                     </div>
                 </div>
 
@@ -306,6 +306,12 @@
     <script>
         const SHEET_ID = '1PabZYUYQMZN6l115imw5gay-vCY-dviyR2QOP3Stpvc';
         
+        // Helper function: Helper to safely format cell values preserving 0
+        function formatVal(val, defaultVal = '-') {
+            if (val === undefined || val === null || val === '') return defaultVal;
+            return String(val).trim();
+        }
+
         // Mock fallback data in case Google Sheet is private or unavailable
         const MOCK_MEMO = [
             "ระบบตรวจสอบข้อมูลการพิจารณาทุนการศึกษา",
@@ -328,10 +334,10 @@
                 term: "2/2569",
                 scholarship: "ทุนเรียนฟรีตลอดหลักสูตร",
                 gpaTerm: "1/2569",
-                gpa: "3.5",
-                behaviorScore: "-",
-                failedSubjects: "-",
-                criteriaSummary: "เกรด ✅ | คะแนนพฤติกรรม ✅ | รายวิชา ✅",
+                gpa: "3.89",
+                behaviorScore: "0",
+                failedSubjects: "0",
+                criteriaSummary: "เกรด ❌ | คะแนนพฤติกรรม ✅ | รายวิชา ✅",
                 initialScholarship: "ทุนเรียนฟรีตลอดหลักสูตร"
             },
             {
@@ -344,7 +350,7 @@
                 gpaTerm: "1/2569",
                 gpa: "2.80",
                 behaviorScore: "-10",
-                failedSubjects: "-",
+                failedSubjects: "0",
                 criteriaSummary: "เกรด ✅ | คะแนนพฤติกรรม ✅ | รายวิชา ✅",
                 initialScholarship: "ทุนความสามารถพิเศษ"
             }
@@ -392,9 +398,9 @@
             try {
                 const rows = await fetchSheetData('memo');
                 if (rows && rows.length > 0) {
-                    const title = rows[0] && rows[0][0] ? rows[0][0] : MOCK_MEMO[0];
-                    const sub1 = rows[1] && rows[1][0] ? rows[1][0] : MOCK_MEMO[1];
-                    const sub2 = rows[2] && rows[2][0] ? rows[2][0] : MOCK_MEMO[2];
+                    const title = rows[0] && rows[0][0] !== undefined ? rows[0][0] : MOCK_MEMO[0];
+                    const sub1 = rows[1] && rows[1][0] !== undefined ? rows[1][0] : MOCK_MEMO[1];
+                    const sub2 = rows[2] && rows[2][0] !== undefined ? rows[2][0] : MOCK_MEMO[2];
 
                     document.getElementById('memo-title').innerText = title;
                     document.getElementById('memo-sub1').innerText = sub1;
@@ -453,29 +459,29 @@
                     // Column Map: 
                     // A: ID, B: Class, C: Name, D: Tuition, E: Term, F: Scholarship, G: GPA, H: Behavior, I: Failed, J: Criteria, K: InitialScholarship
                     const parsedStudents = studentRows.slice(1).map(r => ({
-                        id: String(r[0] || '').trim(),
-                        class: String(r[1] || '').trim(),
-                        name: String(r[2] || '').trim(),
-                        tuition: r[3] !== undefined ? (typeof r[3] === 'number' ? `฿${r[3].toLocaleString()}` : String(r[3])) : '',
-                        term: String(r[4] || '').trim(),
-                        scholarship: String(r[5] || '').trim(),
+                        id: formatVal(r[0]),
+                        class: formatVal(r[1]),
+                        name: formatVal(r[2]),
+                        tuition: r[3] !== undefined && r[3] !== '' ? (typeof r[3] === 'number' ? `฿${r[3].toLocaleString()}` : String(r[3])) : '-',
+                        term: formatVal(r[4], '2/2569'),
+                        scholarship: formatVal(r[5]),
                         gpaTerm: "1/2569", // default label
-                        gpa: String(r[6] || '-'),
-                        behaviorScore: String(r[7] || '-'),
-                        failedSubjects: String(r[8] || '-'),
-                        criteriaSummary: String(r[9] || '-'), // Column J
-                        initialScholarship: String(r[10] || '-') // Column K
+                        gpa: formatVal(r[6]),
+                        behaviorScore: formatVal(r[7]), // 0 will properly be "0"
+                        failedSubjects: formatVal(r[8]), // 0 will properly be "0"
+                        criteriaSummary: formatVal(r[9]), // Column J
+                        initialScholarship: formatVal(r[10]) // Column K
                     }));
 
                     student = parsedStudents.find(s => s.id === inputId);
 
                     if (student && fixRRows.length > 0) {
                         // Check FixR sheet: Col A = Class, Col B = Status, Col C = Memo
-                        const fixRecord = fixRRows.slice(1).find(r => String(r[0] || '').trim() === student.class);
+                        const fixRecord = fixRRows.slice(1).find(r => formatVal(r[0]) === student.class);
                         if (fixRecord) {
                             classStatus = {
-                                status: String(fixRecord[1] || 'Active').trim(),
-                                memo: String(fixRecord[2] || '').trim()
+                                status: formatVal(fixRecord[1], 'Active'),
+                                memo: formatVal(fixRecord[2])
                             };
                         }
                     }
@@ -527,9 +533,9 @@
             document.getElementById('res-scholarship-name').innerText = s.scholarship || '-';
 
             document.getElementById('res-gpa-label').innerText = `ผลการเรียน ภาคเรียนที่ ${s.gpaTerm || '1/2569'}`;
-            document.getElementById('res-gpa').innerText = s.gpa || '-';
-            document.getElementById('res-behavior').innerText = s.behaviorScore || '-';
-            document.getElementById('res-failed').innerText = s.failedSubjects || '-';
+            document.getElementById('res-gpa').innerText = s.gpa;
+            document.getElementById('res-behavior').innerText = s.behaviorScore;
+            document.getElementById('res-failed').innerText = s.failedSubjects;
 
             // Column K: Initial Scholarship
             document.getElementById('res-initial-scholarship').innerText = s.initialScholarship || '-';
